@@ -3,6 +3,7 @@ package grpcserver
 import (
 	"fmt"
 	"net"
+	"time"
 
 	pbgrpc "google.golang.org/grpc"
 )
@@ -50,7 +51,19 @@ func (s *Server) Notify() <-chan error {
 }
 
 func (s *Server) Shutdown() error {
-	s.App.GracefulStop()
+	done := make(chan struct{})
+
+	go func() {
+		s.App.GracefulStop()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		return nil
+	case <-time.After(15 * time.Second):
+		s.App.Stop()
+	}
 
 	return nil
 }
