@@ -12,7 +12,7 @@ deps: ### deps tidy + verify
 		go mod tidy && go mod verify
 .PHONY: deps
 
-run: deps proto-v1
+run: deps proto-v1 ### run
 		go mod download && \
 		CGO_ENABLED=0 go run ./cmd/app
 .PHONY: run
