@@ -46,7 +46,6 @@ func (s *subscriber) stop() {
 	s.stopOnce.Do(
 		func() {
 			close(s.closeCh)
-			close(s.ch)
 		})
 }
 
@@ -107,8 +106,8 @@ func (s *subPubImpl) Publish(subject string, msg interface{}) error {
 		select {
 		case sub.ch <- msg:
 			// delivered
-		default:
-			fmt.Printf("dropping message to %v\n", subject)
+		case <-sub.closeCh:
+			// subscriber closed
 		}
 	}
 
